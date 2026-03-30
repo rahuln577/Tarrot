@@ -54,6 +54,8 @@ async function createBookingOrder(req, res) {
       status: 'Pending',
     })
 
+    // Temporarily bypass Razorpay payment for testing appointment logic
+    /*
     const razorpay = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_SECRET })
 
     const order = await razorpay.orders.create({
@@ -64,13 +66,16 @@ async function createBookingOrder(req, res) {
     })
 
     appointment.razorpayOrderId = order.id
+    */
+
+    appointment.status = 'Confirmed'
     await appointment.save()
 
     return res.json({
-      keyId: RAZORPAY_KEY_ID,
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
+      keyId: 'test',
+      orderId: 'test-order',
+      amount: Math.round(amount * 100),
+      currency: 'INR',
       appointmentId: appointment._id.toString(),
     })
   } catch (err) {
