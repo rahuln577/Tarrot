@@ -60,7 +60,7 @@ async function createShopOrder(params: {
   productId: string
   quantity: number
 }) {
-  const res = await fetch('/api/shop/create', {
+  const res = await fetch('https://tarrot-eyi5.onrender.com/api/shop/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
@@ -72,7 +72,7 @@ async function createShopOrder(params: {
 }
 
 async function getShopOrderStatus(shopOrderId: string) {
-  const res = await fetch(`/api/shop/status/${shopOrderId}`)
+  const res = await fetch(`https://tarrot-eyi5.onrender.com/api/shop/status/${shopOrderId}`)
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch order status')
   return data as { status: 'Pending' | 'Paid' | 'Cancelled' }
@@ -95,7 +95,7 @@ export default function CrystalShopPage() {
     ;(async () => {
       try {
         setLoading(true)
-        const res = await fetch('/api/products')
+        const res = await fetch('https://tarrot-eyi5.onrender.com/api/products')
         const data = await res.json().catch(() => ({}))
         const list: Product[] = (data?.products || []).map(
           (p: { _id?: string; id?: string; name: string; description?: string; price: number }) => ({

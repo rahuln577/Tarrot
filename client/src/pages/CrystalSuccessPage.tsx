@@ -15,7 +15,7 @@ type ShopOrderStatusResponse = {
 }
 
 async function getShopOrderStatus(shopOrderId: string): Promise<ShopOrderStatusResponse> {
-  const res = await fetch(`/api/shop/status/${shopOrderId}`)
+  const res = await fetch(`https://tarrot-eyi5.onrender.com/api/shop/status/${shopOrderId}`)
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch order status')
   return data as ShopOrderStatusResponse

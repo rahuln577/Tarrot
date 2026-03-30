@@ -16,7 +16,7 @@ type BookingStatusResponse = {
 }
 
 async function getBookingStatus(appointmentId: string): Promise<BookingStatusResponse> {
-  const res = await fetch(`/api/booking/status/${appointmentId}`)
+  const res = await fetch(`https://tarrot-eyi5.onrender.com/api/booking/status/${appointmentId}`)
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch booking status')
   return data as BookingStatusResponse

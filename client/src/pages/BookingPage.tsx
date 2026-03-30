@@ -50,7 +50,7 @@ async function createBookingOrder(params: {
   amountInRupees: number
   durationMinutes: number
 }) {
-  const res = await fetch('/api/booking/create', {
+  const res = await fetch('https://tarrot-eyi5.onrender.com/api/booking/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
@@ -70,7 +70,7 @@ async function createBookingOrder(params: {
 }
 
 async function getBookingStatus(appointmentId: string) {
-  const res = await fetch(`/api/booking/status/${appointmentId}`)
+  const res = await fetch(`https://tarrot-eyi5.onrender.com/api/booking/status/${appointmentId}`)
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch status')
   return data as {
