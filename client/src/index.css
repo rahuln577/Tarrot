@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+@import 'tailwindcss';
+
+@config "../tailwind.config.js";
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: #ffffff;
+  color: #0f172a; /* slate-900 */
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+.section-container {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 72rem; /* tailwind max-w-6xl */
+  padding-left: 1rem; /* tailwind px-4 */
+  padding-right: 1rem; /* tailwind px-4 */
+}
+
+@media (min-width: 640px) {
+  .section-container {
+    padding-left: 1.5rem; /* tailwind sm:px-6 */
+    padding-right: 1.5rem; /* tailwind sm:px-6 */
+  }
+}
+
