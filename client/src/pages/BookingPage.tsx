@@ -30,9 +30,9 @@ declare global {
 const TIME_SLOTS = ['10:00', '12:00', '15:00', '18:00']
 const SERVICES: Array<{ serviceType: string; priceInRupees: number; label: string; icon: ElementType }> = [
   // Testing mode: 1 paise = 0.01 INR
-  { serviceType: 'Love', priceInRupees: 0.01, label: 'Tarot for Love', icon: Heart },
-  { serviceType: 'Career', priceInRupees: 0.01, label: 'Tarot for Career', icon: Target },
-  { serviceType: 'Personal Growth', priceInRupees: 0.01, label: 'Tarot for Personal Growth', icon: Sparkles },
+  { serviceType: 'Love', priceInRupees: 2, label: 'Tarot for Love', icon: Heart },
+  { serviceType: 'Career', priceInRupees: 2, label: 'Tarot for Career', icon: Target },
+  { serviceType: 'Personal Growth', priceInRupees: 2, label: 'Tarot for Personal Growth', icon: Sparkles },
 ]
 
 function formatSlotToLocalISO(date: Date, time: string) {

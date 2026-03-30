@@ -31,8 +31,8 @@ async function createBookingOrder(req, res) {
     const duration = durationMinutes ? Number(durationMinutes) : 60
     const finalDuration = Number.isFinite(duration) && duration > 0 ? duration : 60
 
-    // Frontend can send exact price; if not, default to 1 INR (100 paise) for testing.
-    const inferred = getAmountInRupees(amountInRupees) ?? 1
+    // Frontend can send exact price; if not, default to 1 paise (0.01 INR) for testing.
+    const inferred = getAmountInRupees(amountInRupees) ?? 0.01;
     const amount = inferred
 
     if (!RAZORPAY_KEY_ID || !RAZORPAY_SECRET) {
