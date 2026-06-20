@@ -63,7 +63,6 @@ const testimonials = [
 ]
 
 const galleryImages = [
-  { src: '/divinesurmise/gallery/gallery-1.png', alt: 'Tarot reading moment' },
   { src: '/divinesurmise/gallery/gallery-2.png', alt: 'Client tarot reading' },
   { src: '/divinesurmise/gallery/gallery-3.png', alt: 'Tarot consultation' },
   { src: '/divinesurmise/gallery/gallery-4.png', alt: 'Intuitive guidance session' },
