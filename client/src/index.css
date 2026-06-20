@@ -7,6 +7,7 @@
 html,
 body {
   height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -35,6 +36,15 @@ body {
   .section-container {
     padding-left: 1.5rem; /* tailwind sm:px-6 */
     padding-right: 1.5rem; /* tailwind sm:px-6 */
+  }
+}
+
+@media (max-width: 639px) {
+  .rdp-root {
+    --rdp-day-height: 2rem;
+    --rdp-day-width: 2rem;
+    --rdp-day_button-height: 2rem;
+    --rdp-day_button-width: 2rem;
   }
 }
 

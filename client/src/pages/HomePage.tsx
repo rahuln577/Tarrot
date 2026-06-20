@@ -90,12 +90,12 @@ function Tile({
     <FadeInUp
       delay={delay}
       className={[
-        'group relative min-w-0 overflow-hidden rounded-3xl border border-white/70 bg-white/75 p-5 shadow-[0_8px_32px_rgba(15,23,42,0.06)] backdrop-blur-md transition-transform hover:-translate-y-1 sm:p-6',
+        'group relative w-full max-w-full min-w-0 overflow-hidden rounded-3xl border border-white/70 bg-white/75 p-4 shadow-[0_8px_32px_rgba(15,23,42,0.06)] backdrop-blur-md transition-transform hover:-translate-y-1 sm:p-6',
         'before:pointer-events-none before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br before:from-white/50 before:to-transparent before:opacity-0 before:transition-opacity group-hover:before:opacity-100',
         className,
       ].join(' ')}
     >
-      <div id={id} className="relative h-full">
+      <div id={id} className="relative">
         {children}
       </div>
     </FadeInUp>
@@ -125,7 +125,8 @@ export default function HomePage() {
   const activeTestimonial = testimonials[testimonialIndex]!
 
   return (
-    <div className="relative flex flex-col gap-8 pb-6">
+    <div className="relative w-full max-w-full overflow-x-clip">
+      <div className="flex flex-col gap-8 pb-6">
       <div
         aria-hidden
         className="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-violet-300/30 blur-3xl"
@@ -141,7 +142,7 @@ export default function HomePage() {
 
       {/* Hero strip */}
       <FadeInUp>
-        <section className="relative overflow-hidden rounded-3xl border border-gold/25 bg-gradient-to-br from-slate-950 via-violet-950 to-slate-900 px-6 py-8 text-white shadow-[0_20px_60px_rgba(15,23,42,0.25)] sm:px-8 sm:py-10">
+        <section className="relative w-full max-w-full overflow-hidden rounded-3xl border border-gold/25 bg-gradient-to-br from-slate-950 via-violet-950 to-slate-900 px-5 py-8 text-white shadow-[0_20px_60px_rgba(15,23,42,0.25)] sm:px-8 sm:py-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.18),transparent_55%)]" />
           <div className="relative grid gap-6 md:grid-cols-[1.2fr_0.8fr] md:items-end">
             <div className="space-y-4">
@@ -176,90 +177,16 @@ export default function HomePage() {
         </section>
       </FadeInUp>
 
-      {/* Bento grid */}
-      <section className="grid w-full grid-cols-1 gap-4 md:grid-cols-12 md:gap-5">
-        {/* Booking calendar tile */}
-        <Tile className="md:col-span-7 md:row-span-2" delay={0.05}>
-          <div className="mb-4 flex items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 text-gold">
-                <CalendarDays className="h-5 w-5" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Book a session</span>
-              </div>
-              <h2 className="mt-2 font-heading text-2xl font-semibold text-slate-900 sm:text-3xl">
-                Pick your date & time
-              </h2>
-              <p className="mt-1 text-sm text-slate-600">Secure checkout + Google Meet invite after payment.</p>
-            </div>
-            <span className="hidden rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700 sm:inline">
-              live slots
-            </span>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-2xl border border-gold/15 bg-gradient-to-br from-amber-50/80 to-white p-2">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                disabled={{ before: new Date() }}
-              />
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Time slots</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {TIME_SLOTS.map((slot) => {
-                    const active = slot === selectedTime
-                    return (
-                      <button
-                        key={slot}
-                        type="button"
-                        disabled={!selectedDate}
-                        onClick={() => setSelectedTime(slot)}
-                        className={[
-                          'rounded-xl border px-3 py-2.5 text-sm font-medium transition',
-                          !selectedDate && 'cursor-not-allowed opacity-40',
-                          active
-                            ? 'border-gold bg-gold/15 text-slate-900 shadow-goldGlow'
-                            : 'border-slate-200 bg-white text-slate-700 hover:border-gold/40 hover:bg-gold/5',
-                        ].join(' ')}
-                      >
-                        {slot}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              <div className="mt-auto space-y-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Your pick</p>
-                <p className="text-sm font-medium text-slate-800">
-                  {formattedSelection ?? 'Select a date and time to continue'}
-                </p>
-                {bookingReady ? (
-                  <Button asChild size="lg" className="w-full">
-                    <Link to="/booking">Continue booking</Link>
-                  </Button>
-                ) : (
-                  <Button size="lg" className="w-full" disabled>
-                    Choose date & time
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </Tile>
-
+      {/* Bento grid — company info first, booking last */}
+      <section className="grid w-full max-w-full grid-cols-1 items-start gap-4 md:grid-cols-12 md:gap-5">
         {/* Profile tile */}
-        <Tile className="md:col-span-5" delay={0.08}>
-          <div className="flex h-full flex-col gap-4">
+        <Tile className="md:col-span-5" delay={0.05}>
+          <div className="flex flex-col gap-4">
             <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-violet-50 to-amber-50 p-3">
               <img
                 src="/divinesurmise/jetpack/wp-content/uploads/2024/10/image-4.png"
                 alt="Anandamayii Roopa"
-                className="mx-auto h-44 w-full max-w-[220px] rounded-xl object-cover object-top shadow-lg sm:h-48"
+                className="mx-auto h-40 w-full max-w-[200px] rounded-xl object-cover object-top shadow-lg"
               />
             </div>
             <div className="flex items-center gap-3">
@@ -276,7 +203,7 @@ export default function HomePage() {
             <p className="text-sm leading-relaxed text-slate-700">
               Tarot is a mirror to the soul — compassionate, non-judgmental guidance in a safe space.
             </p>
-            <Button asChild variant="outline" className="mt-auto w-full">
+            <Button asChild variant="outline" className="w-full">
               <Link to="/#about">
                 Meet Roopa <ArrowRight className="h-4 w-4" />
               </Link>
@@ -284,66 +211,8 @@ export default function HomePage() {
           </div>
         </Tile>
 
-        {/* Services tile */}
-        <Tile className="md:col-span-5" delay={0.1}>
-          <div className="mb-4 flex items-center gap-2">
-            <Wand2 className="h-5 w-5 text-gold" />
-            <h2 className="font-heading text-xl font-semibold text-slate-900">Choose your reading</h2>
-          </div>
-          <div className="space-y-3">
-            {services.map((s) => (
-              <Link
-                key={s.title}
-                to="/booking"
-                className={[
-                  'flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-gradient-to-r p-3 transition hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-md',
-                  s.gradient,
-                ].join(' ')}
-              >
-                <span className="grid h-10 w-10 place-items-center rounded-xl border border-white/80 bg-white/80">
-                  <s.icon className="h-5 w-5 text-gold" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-slate-900">{s.label}</div>
-                  <div className="truncate text-xs text-slate-600">{s.desc}</div>
-                </div>
-                <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />
-              </Link>
-            ))}
-          </div>
-        </Tile>
-
-        {/* Crystal shop tile */}
-        <Tile className="md:col-span-4" delay={0.12}>
-          <div className="flex h-full flex-col">
-            <div className="mb-3 inline-flex w-fit items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-              <Gem className="h-3.5 w-3.5" />
-              crystal shop
-            </div>
-            <h2 className="font-heading text-2xl font-semibold text-slate-900">Healing stones</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
-              Rose quartz, amethyst, citrine & more — curated for your energy.
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {['Rose Quartz', 'Amethyst', 'Citrine', 'Clear Quartz'].map((name) => (
-                <div
-                  key={name}
-                  className="rounded-xl border border-emerald-200/60 bg-emerald-50/50 px-3 py-2 text-xs font-medium text-emerald-900"
-                >
-                  {name}
-                </div>
-              ))}
-            </div>
-            <Button asChild className="mt-auto w-full pt-4">
-              <Link to="/crystals">
-                Shop crystals <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </Tile>
-
         {/* Philosophy tile */}
-        <Tile className="md:col-span-4" delay={0.14} id="about">
+        <Tile className="md:col-span-7" delay={0.08} id="about">
           <Quote className="h-8 w-8 text-gold/80" />
           <h2 className="mt-3 font-heading text-xl font-semibold text-slate-900">The vibe</h2>
           <p className="mt-3 text-sm leading-relaxed text-slate-700">
@@ -362,8 +231,66 @@ export default function HomePage() {
           </div>
         </Tile>
 
+        {/* Services tile */}
+        <Tile className="md:col-span-4" delay={0.1}>
+          <div className="mb-4 flex items-center gap-2">
+            <Wand2 className="h-5 w-5 text-gold" />
+            <h2 className="font-heading text-xl font-semibold text-slate-900">Choose your reading</h2>
+          </div>
+          <div className="space-y-3">
+            {services.map((s) => (
+              <Link
+                key={s.title}
+                to="/booking"
+                className={[
+                  'flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-gradient-to-r p-3 transition hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-md',
+                  s.gradient,
+                ].join(' ')}
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/80 bg-white/80">
+                  <s.icon className="h-5 w-5 text-gold" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-slate-900">{s.label}</div>
+                  <div className="truncate text-xs text-slate-600">{s.desc}</div>
+                </div>
+                <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />
+              </Link>
+            ))}
+          </div>
+        </Tile>
+
+        {/* Crystal shop tile */}
+        <Tile className="md:col-span-4" delay={0.12}>
+          <div className="flex flex-col gap-3">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+              <Gem className="h-3.5 w-3.5" />
+              crystal shop
+            </div>
+            <h2 className="font-heading text-xl font-semibold text-slate-900">Healing stones</h2>
+            <p className="text-sm leading-relaxed text-slate-600">
+              Rose quartz, amethyst, citrine & more — curated for your energy.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {['Rose Quartz', 'Amethyst', 'Citrine', 'Clear Quartz'].map((name) => (
+                <div
+                  key={name}
+                  className="rounded-xl border border-emerald-200/60 bg-emerald-50/50 px-3 py-2 text-xs font-medium text-emerald-900"
+                >
+                  {name}
+                </div>
+              ))}
+            </div>
+            <Button asChild className="w-full">
+              <Link to="/crystals">
+                Shop crystals <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </Tile>
+
         {/* Testimonials tile */}
-        <Tile className="md:col-span-4" delay={0.16}>
+        <Tile className="md:col-span-4" delay={0.14}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 fill-gold text-gold" />
@@ -397,10 +324,10 @@ export default function HomePage() {
         </Tile>
 
         {/* Gallery tile */}
-        <Tile className="md:col-span-6" delay={0.18}>
+        <Tile className="md:col-span-6" delay={0.16}>
           <h2 className="font-heading text-xl font-semibold text-slate-900">Session moments</h2>
           <p className="mt-1 text-sm text-slate-600">Real readings. Real clarity. Real calm.</p>
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="mt-4 grid w-full grid-cols-2 gap-2">
             {galleryImages.map((img) => (
               <div
                 key={img.src}
@@ -410,7 +337,7 @@ export default function HomePage() {
                   src={img.src}
                   alt={img.alt}
                   loading="lazy"
-                  className="aspect-square h-full w-full object-cover"
+                  className="aspect-square w-full object-cover"
                 />
               </div>
             ))}
@@ -418,7 +345,7 @@ export default function HomePage() {
         </Tile>
 
         {/* Video tile */}
-        <Tile className="md:col-span-6" delay={0.2}>
+        <Tile className="md:col-span-6" delay={0.18}>
           <div className="mb-3 flex items-center gap-2">
             <Video className="h-5 w-5 text-gold" />
             <h2 className="font-heading text-xl font-semibold text-slate-900">Watch a live reading</h2>
@@ -439,30 +366,82 @@ export default function HomePage() {
           </div>
         </Tile>
 
-        {/* Final CTA tile */}
-        <Tile className="md:col-span-12" delay={0.22}>
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        {/* Booking calendar tile — bottom */}
+        <Tile className="md:col-span-12" delay={0.2}>
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="font-heading text-2xl font-semibold text-slate-900 sm:text-3xl">
-                Ready when you are ✨
+              <div className="flex items-center gap-2 text-gold">
+                <CalendarDays className="h-5 w-5" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Book a session</span>
+              </div>
+              <h2 className="mt-2 font-heading text-2xl font-semibold text-slate-900 sm:text-3xl">
+                Pick your date & time
               </h2>
-              <p className="mt-1 max-w-xl text-sm text-slate-600">
-                Book a session, pay securely, and get your Google Meet link after confirmation.
-              </p>
+              <p className="mt-1 text-sm text-slate-600">Secure checkout + Google Meet invite after payment.</p>
             </div>
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-              <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link to="/booking">
-                  Book now <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-                <Link to="/crystals">Crystal shop</Link>
-              </Button>
+            <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
+              live slots
+            </span>
+          </div>
+
+          <div className="flex w-full flex-col items-stretch gap-4 sm:flex-row sm:items-start sm:gap-6">
+            <div className="mx-auto w-full max-w-full rounded-2xl border border-gold/15 bg-gradient-to-br from-amber-50/80 to-white sm:mx-0 sm:w-fit sm:shrink-0">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                disabled={{ before: new Date() }}
+                className="mx-auto p-2"
+              />
+            </div>
+
+            <div className="flex w-full min-w-0 flex-col gap-4 sm:max-w-sm sm:flex-1">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Time slots</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {TIME_SLOTS.map((slot) => {
+                    const active = slot === selectedTime
+                    return (
+                      <button
+                        key={slot}
+                        type="button"
+                        disabled={!selectedDate}
+                        onClick={() => setSelectedTime(slot)}
+                        className={[
+                          'rounded-xl border px-3 py-2 text-sm font-medium transition',
+                          !selectedDate && 'cursor-not-allowed opacity-40',
+                          active
+                            ? 'border-gold bg-gold/15 text-slate-900 shadow-goldGlow'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-gold/40 hover:bg-gold/5',
+                        ].join(' ')}
+                      >
+                        {slot}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Your pick</p>
+                <p className="text-sm font-medium text-slate-800">
+                  {formattedSelection ?? 'Select a date and time to continue'}
+                </p>
+                {bookingReady ? (
+                  <Button asChild size="lg" className="w-full">
+                    <Link to="/booking">Continue booking</Link>
+                  </Button>
+                ) : (
+                  <Button size="lg" className="w-full" disabled>
+                    Choose date & time
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </Tile>
       </section>
+      </div>
     </div>
   )
 }
