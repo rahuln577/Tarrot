@@ -173,190 +173,186 @@ export default function HomePage() {
         </section>
       </FadeInUp>
 
-      {/* Packed bento grid — row 2 tiles sit under booking, not below the full sidebar */}
-      <div className="grid w-full max-w-full grid-cols-1 items-start gap-4 lg:grid-cols-12 lg:gap-5">
-        <Tile className="lg:col-span-7 lg:col-start-1 lg:row-start-1" delay={0.05}>
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 text-gold">
-                <CalendarDays className="h-5 w-5" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Book a session</span>
-              </div>
-              <h2 className="mt-2 font-heading text-2xl font-semibold text-slate-900 sm:text-3xl">
-                Pick your date & time
-              </h2>
-              <p className="mt-1 text-sm text-slate-600">Secure checkout + Google Meet invite after payment.</p>
-            </div>
-            <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
-              live slots
-            </span>
-          </div>
-
-          <div className="flex w-full flex-col items-stretch gap-4 sm:flex-row sm:items-start sm:gap-5">
-            <div className="mx-auto w-full max-w-full rounded-2xl border border-gold/15 bg-gradient-to-br from-amber-50/80 to-white sm:mx-0 sm:w-fit sm:shrink-0">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                disabled={{ before: new Date() }}
-                className="mx-auto p-2"
-              />
-            </div>
-
-            <div className="flex w-full min-w-0 flex-col gap-4 sm:flex-1 sm:max-w-xs">
+      {/* Uniform rows — equal tile widths & consistent gaps */}
+      <div className="flex w-full max-w-full flex-col gap-4 lg:gap-5">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
+          <Tile delay={0.05}>
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Time slots</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {TIME_SLOTS.map((slot) => {
-                    const active = slot === selectedTime
-                    return (
-                      <button
-                        key={slot}
-                        type="button"
-                        disabled={!selectedDate}
-                        onClick={() => setSelectedTime(slot)}
-                        className={[
-                          'rounded-xl border px-3 py-2 text-sm font-medium transition',
-                          !selectedDate && 'cursor-not-allowed opacity-40',
-                          active
-                            ? 'border-gold bg-gold/15 text-slate-900 shadow-goldGlow'
-                            : 'border-slate-200 bg-white text-slate-700 hover:border-gold/40 hover:bg-gold/5',
-                        ].join(' ')}
-                      >
-                        {slot}
-                      </button>
-                    )
-                  })}
+                <div className="flex items-center gap-2 text-gold">
+                  <CalendarDays className="h-5 w-5" />
+                  <span className="text-xs font-semibold uppercase tracking-wider">Book a session</span>
+                </div>
+                <h2 className="mt-2 font-heading text-2xl font-semibold text-slate-900 sm:text-3xl">
+                  Pick your date & time
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">Secure checkout + Google Meet invite after payment.</p>
+              </div>
+              <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
+                live slots
+              </span>
+            </div>
+
+            <div className="flex w-full flex-col items-stretch gap-4 md:flex-row md:items-start md:gap-4">
+              <div className="mx-auto w-full max-w-full rounded-2xl border border-gold/15 bg-gradient-to-br from-amber-50/80 to-white md:mx-0 md:w-fit md:shrink-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  disabled={{ before: new Date() }}
+                  className="mx-auto p-2"
+                />
+              </div>
+
+              <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Time slots</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {TIME_SLOTS.map((slot) => {
+                      const active = slot === selectedTime
+                      return (
+                        <button
+                          key={slot}
+                          type="button"
+                          disabled={!selectedDate}
+                          onClick={() => setSelectedTime(slot)}
+                          className={[
+                            'rounded-xl border px-3 py-2 text-sm font-medium transition',
+                            !selectedDate && 'cursor-not-allowed opacity-40',
+                            active
+                              ? 'border-gold bg-gold/15 text-slate-900 shadow-goldGlow'
+                              : 'border-slate-200 bg-white text-slate-700 hover:border-gold/40 hover:bg-gold/5',
+                          ].join(' ')}
+                        >
+                          {slot}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Your pick</p>
+                  <p className="text-sm font-medium text-slate-800">
+                    {formattedSelection ?? 'Select a date and time to continue'}
+                  </p>
+                  {bookingReady ? (
+                    <Button asChild size="lg" className="w-full">
+                      <Link to="/booking">Continue booking</Link>
+                    </Button>
+                  ) : (
+                    <Button size="lg" className="w-full" disabled>
+                      Choose date & time
+                    </Button>
+                  )}
                 </div>
               </div>
+            </div>
+          </Tile>
 
-              <div className="space-y-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Your pick</p>
-                <p className="text-sm font-medium text-slate-800">
-                  {formattedSelection ?? 'Select a date and time to continue'}
-                </p>
-                {bookingReady ? (
-                  <Button asChild size="lg" className="w-full">
-                    <Link to="/booking">Continue booking</Link>
-                  </Button>
-                ) : (
-                  <Button size="lg" className="w-full" disabled>
-                    Choose date & time
-                  </Button>
-                )}
+          <Tile delay={0.08}>
+            <div className="flex flex-col gap-4">
+              <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-violet-50 to-amber-50 p-3">
+                <img
+                  src="/divinesurmise/jetpack/wp-content/uploads/2024/10/image-4.png"
+                  alt="Anandamayii Roopa"
+                  className="mx-auto h-32 w-full max-w-[160px] rounded-xl object-cover object-top shadow-lg"
+                />
               </div>
-            </div>
-          </div>
-        </Tile>
-
-        <Tile className="lg:col-span-5 lg:col-start-8 lg:row-start-1" delay={0.08}>
-          <div className="flex flex-col gap-4">
-            <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-violet-50 to-amber-50 p-3">
-              <img
-                src="/divinesurmise/jetpack/wp-content/uploads/2024/10/image-4.png"
-                alt="Anandamayii Roopa"
-                className="mx-auto h-36 w-full max-w-[180px] rounded-xl object-cover object-top shadow-lg"
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <img
-                src="/divinesurmise/images/logo.png"
-                alt=""
-                className="h-11 w-11 rounded-full border border-gold/30 bg-white object-cover"
-              />
-              <div>
-                <h3 className="font-heading text-lg font-semibold text-slate-900">Anandamayii Roopa</h3>
-                <p className="text-sm text-slate-600">Tarot reader • 10+ years</p>
+              <div className="flex items-center gap-3">
+                <img
+                  src="/divinesurmise/images/logo.png"
+                  alt=""
+                  className="h-10 w-10 rounded-full border border-gold/30 bg-white object-cover"
+                />
+                <div>
+                  <h3 className="font-heading text-lg font-semibold text-slate-900">Anandamayii Roopa</h3>
+                  <p className="text-sm text-slate-600">Tarot reader • 10+ years</p>
+                </div>
               </div>
+              <p className="text-sm leading-relaxed text-slate-700">
+                Tarot is a mirror to the soul — compassionate, non-judgmental guidance in a safe space.
+              </p>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/about">
+                  Meet Roopa <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
-            <p className="text-sm leading-relaxed text-slate-700">
-              Tarot is a mirror to the soul — compassionate, non-judgmental guidance in a safe space.
-            </p>
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/about">
-                Meet Roopa <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </Tile>
+          </Tile>
+        </div>
 
-        <Tile className="lg:col-span-4 lg:col-start-1 lg:row-start-2" delay={0.12}>
-          <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+          <Tile delay={0.1}>
+            <div className="mb-3 flex items-center gap-2">
+              <Wand2 className="h-5 w-5 text-gold" />
+              <h2 className="font-heading text-lg font-semibold text-slate-900">Choose your reading</h2>
+            </div>
+            <div className="space-y-2">
+              {services.map((s) => (
+                <Link
+                  key={s.title}
+                  to="/booking"
+                  className={[
+                    'flex items-center gap-2 rounded-xl border border-slate-200/80 bg-gradient-to-r p-2.5 transition hover:border-gold/30',
+                    s.gradient,
+                  ].join(' ')}
+                >
+                  <s.icon className="h-4 w-4 shrink-0 text-gold" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold text-slate-900">{s.label}</div>
+                    <div className="truncate text-xs text-slate-600">{s.desc}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </Tile>
+
+          <Tile delay={0.12}>
             <div className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
               <Gem className="h-3.5 w-3.5" />
               crystal shop
             </div>
-            <h2 className="font-heading text-xl font-semibold text-slate-900">Healing stones</h2>
-            <p className="text-sm leading-relaxed text-slate-600">
-              Rose quartz, amethyst, citrine & more — curated for your energy.
-            </p>
-            <div className="grid grid-cols-2 gap-2">
+            <h2 className="mt-3 font-heading text-lg font-semibold text-slate-900">Healing stones</h2>
+            <p className="mt-2 text-sm text-slate-600">Rose quartz, amethyst, citrine & more.</p>
+            <div className="mt-3 flex flex-wrap gap-2">
               {['Rose Quartz', 'Amethyst', 'Citrine', 'Clear Quartz'].map((name) => (
-                <div
+                <span
                   key={name}
-                  className="rounded-xl border border-emerald-200/60 bg-emerald-50/50 px-3 py-2 text-xs font-medium text-emerald-900"
+                  className="rounded-lg border border-emerald-200/60 bg-emerald-50/50 px-2.5 py-1 text-xs font-medium text-emerald-900"
                 >
                   {name}
-                </div>
+                </span>
               ))}
             </div>
-            <Button asChild className="w-full">
+            <Button asChild className="mt-4 w-full" size="sm">
               <Link to="/crystals">
                 Shop crystals <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-          </div>
-        </Tile>
+          </Tile>
 
-        <Tile className="lg:col-span-3 lg:col-start-5 lg:row-start-2" delay={0.14}>
-          <Quote className="h-8 w-8 text-gold/80" />
-          <h2 className="mt-3 font-heading text-xl font-semibold text-slate-900">The vibe</h2>
-          <p className="mt-3 text-sm leading-relaxed text-slate-700">
-            I believe tarot reveals patterns you can&apos;t always see. My sessions are warm, honest, and
-            empowering — so you leave with clarity you can actually use.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {['No judgment', 'Real talk', 'Safe space', 'Actionable clarity'].map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-800"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </Tile>
-
-        <Tile className="lg:col-span-5 lg:col-start-8 lg:row-start-2" delay={0.1}>
-          <div className="mb-4 flex items-center gap-2">
-            <Wand2 className="h-5 w-5 text-gold" />
-            <h2 className="font-heading text-xl font-semibold text-slate-900">Choose your reading</h2>
-          </div>
-          <div className="space-y-3">
-            {services.map((s) => (
-              <Link
-                key={s.title}
-                to="/booking"
-                className={[
-                  'flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-gradient-to-r p-3 transition hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-md',
-                  s.gradient,
-                ].join(' ')}
-              >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/80 bg-white/80">
-                  <s.icon className="h-5 w-5 text-gold" />
+          <Tile className="sm:col-span-2 lg:col-span-1" delay={0.14}>
+            <Quote className="h-7 w-7 text-gold/80" />
+            <h2 className="mt-2 font-heading text-lg font-semibold text-slate-900">The vibe</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              Warm, honest sessions that leave you with clarity you can actually use.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {['No judgment', 'Real talk', 'Safe space'].map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-800"
+                >
+                  {tag}
                 </span>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-slate-900">{s.label}</div>
-                  <div className="truncate text-xs text-slate-600">{s.desc}</div>
-                </div>
-                <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />
-              </Link>
-            ))}
-          </div>
-        </Tile>
+              ))}
+            </div>
+          </Tile>
+        </div>
 
-        <Tile className="lg:col-span-4 lg:col-start-1 lg:row-start-3" delay={0.16}>
-          <div className="flex items-center justify-between gap-2">
+        <Tile delay={0.16}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 fill-gold text-gold" />
               <h2 className="font-heading text-xl font-semibold text-slate-900">Client love</h2>
@@ -388,48 +384,50 @@ export default function HomePage() {
           </motion.div>
         </Tile>
 
-        <Tile className="lg:col-span-4 lg:col-start-5 lg:row-start-3" delay={0.18}>
-          <h2 className="font-heading text-xl font-semibold text-slate-900">Session moments</h2>
-          <p className="mt-1 text-sm text-slate-600">Real readings. Real clarity. Real calm.</p>
-          <div className="mt-4 grid w-full grid-cols-2 gap-2">
-            {galleryImages.map((img) => (
-              <div
-                key={img.src}
-                className="overflow-hidden rounded-2xl border border-white/80 bg-white shadow-sm transition-transform hover:scale-[1.02]"
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
+          <Tile delay={0.18}>
+            <h2 className="font-heading text-xl font-semibold text-slate-900">Session moments</h2>
+            <p className="mt-1 text-sm text-slate-600">Real readings. Real clarity. Real calm.</p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {galleryImages.map((img) => (
+                <div
+                  key={img.src}
+                  className="overflow-hidden rounded-2xl border border-white/80 bg-white shadow-sm"
+                >
+                  <img
+                    src={img.src}
+                    alt={img.alt}
+                    loading="lazy"
+                    className="aspect-square w-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </Tile>
+
+          <Tile delay={0.2}>
+            <div className="mb-3 flex items-center gap-2">
+              <Video className="h-5 w-5 text-gold" />
+              <h2 className="font-heading text-xl font-semibold text-slate-900">Watch a live reading</h2>
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-gold/20 bg-slate-900/5">
+              <video
+                className="aspect-video w-full object-cover"
+                controls
+                preload="metadata"
+                playsInline
+                poster="/divinesurmise/jetpack/wp-content/uploads/2025/01/ritz_mp4_std.original.jpg"
               >
-                <img
-                  src={img.src}
-                  alt={img.alt}
-                  loading="lazy"
-                  className="aspect-square w-full object-cover"
+                <source
+                  src="/divinesurmise/jetpack/wp-content/uploads/2024/11/WhatsApp-Video-2024-10-23-at-16.33.23_53d61d5c.mp4"
+                  type="video/mp4"
                 />
-              </div>
-            ))}
-          </div>
-        </Tile>
+              </video>
+            </div>
+          </Tile>
+        </div>
 
-        <Tile className="lg:col-span-4 lg:col-start-9 lg:row-start-3" delay={0.2}>
-          <div className="mb-3 flex items-center gap-2">
-            <Video className="h-5 w-5 text-gold" />
-            <h2 className="font-heading text-xl font-semibold text-slate-900">Watch a live reading</h2>
-          </div>
-          <div className="overflow-hidden rounded-2xl border border-gold/20 bg-slate-900/5">
-            <video
-              className="aspect-video w-full object-cover"
-              controls
-              preload="metadata"
-              playsInline
-              poster="/divinesurmise/jetpack/wp-content/uploads/2025/01/ritz_mp4_std.original.jpg"
-            >
-              <source
-                src="/divinesurmise/jetpack/wp-content/uploads/2024/11/WhatsApp-Video-2024-10-23-at-16.33.23_53d61d5c.mp4"
-                type="video/mp4"
-              />
-            </video>
-          </div>
-        </Tile>
-
-        <Tile className="lg:col-span-12 lg:row-start-4" delay={0.22}>
+        <Tile delay={0.22}>
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <h2 className="font-heading text-2xl font-semibold text-slate-900 sm:text-3xl">
