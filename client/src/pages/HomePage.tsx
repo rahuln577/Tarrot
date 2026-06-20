@@ -10,9 +10,9 @@ import {
   Video,
   Wand2,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { FadeInUp } from '../components/animations/FadeInUp'
 import { Button } from '../components/ui/button'
 import { Calendar } from '../components/ui/calendar'
@@ -93,7 +93,7 @@ function Tile({
         className,
       ].join(' ')}
     >
-      <div className="relative">{children}</div>
+      <div className="relative h-full flex flex-col">{children}</div>
     </FadeInUp>
   )
 }
@@ -101,7 +101,26 @@ function Tile({
 export default function HomePage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  
+  // Slider states
   const [testimonialIndex, setTestimonialIndex] = useState(0)
+  const [imageIndex, setImageIndex] = useState(0)
+
+  // Auto-advance testimonials every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTestimonialIndex((prev) => (prev + 1) % testimonials.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
+
+  // Auto-advance gallery images every 3.5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setImageIndex((prev) => (prev + 1) % galleryImages.length)
+    }, 3500)
+    return () => clearInterval(timer)
+  }, [])
 
   const bookingReady = Boolean(selectedDate && selectedTime)
   const formattedSelection = useMemo(() => {
@@ -242,7 +261,7 @@ export default function HomePage() {
                     </Button>
                   ) : (
                     <Button size="lg" className="w-full" disabled>
-                      Choose date & time
+                      Make selection
                     </Button>
                   )}
                 </div>
@@ -250,13 +269,13 @@ export default function HomePage() {
             </div>
           </Tile>
 
-          <Tile delay={0.08}>
-            <div className="flex flex-col gap-4">
-              <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-violet-50 to-amber-50 p-3">
+          <Tile delay={0.08} className="flex items-center justify-center">
+            <div className="flex flex-col gap-4 w-full h-full">
+              <div className="relative flex-1 overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-violet-50 to-amber-50 p-3 w-full">
                 <img
                   src="/divinesurmise/jetpack/wp-content/uploads/2024/10/image-4.png"
                   alt="Anandamayii Roopa"
-                  className="mx-auto h-32 w-full max-w-[160px] rounded-xl object-cover object-top shadow-lg"
+                  className="mx-auto h-50 w-full rounded-xl object-cover object-top shadow-lg"
                 />
               </div>
               <div className="flex items-center gap-3">
@@ -273,7 +292,7 @@ export default function HomePage() {
               <p className="text-sm leading-relaxed text-slate-700">
                 Tarot is a mirror to the soul — compassionate, non-judgmental guidance in a safe space.
               </p>
-              <Button asChild variant="outline" className="w-full">
+              <Button asChild variant="outline" className="w-full mt-auto">
                 <Link to="/about">
                   Meet Roopa <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -288,7 +307,7 @@ export default function HomePage() {
               <Wand2 className="h-5 w-5 text-gold" />
               <h2 className="font-heading text-lg font-semibold text-slate-900">Choose your reading</h2>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1 flex flex-col justify-center">
               {services.map((s) => (
                 <Link
                   key={s.title}
@@ -325,7 +344,7 @@ export default function HomePage() {
                 </span>
               ))}
             </div>
-            <Button asChild className="mt-4 w-full" size="sm">
+            <Button asChild className="mt-auto w-full" size="sm">
               <Link to="/crystals">
                 Shop crystals <ArrowRight className="h-4 w-4" />
               </Link>
@@ -386,33 +405,51 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
           <Tile delay={0.18}>
-            <h2 className="font-heading text-xl font-semibold text-slate-900">Session moments</h2>
-            <p className="mt-1 text-sm text-slate-600">Real readings. Real clarity. Real calm.</p>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {galleryImages.map((img) => (
-                <div
-                  key={img.src}
-                  className="overflow-hidden rounded-2xl border border-white/80 bg-white shadow-sm"
-                >
-                  <img
-                    src={img.src}
-                    alt={img.alt}
-                    loading="lazy"
-                    className="aspect-square w-full object-cover"
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-heading text-xl font-semibold text-slate-900">Session moments</h2>
+              <div className="flex gap-1">
+                {galleryImages.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-label={`Show image ${i + 1}`}
+                    onClick={() => setImageIndex(i)}
+                    className={[
+                      'h-1.5 w-1.5 rounded-full transition',
+                      i === imageIndex ? 'bg-gold' : 'bg-slate-300 hover:bg-slate-400',
+                    ].join(' ')}
                   />
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+            <p className="mt-1 text-sm text-slate-600 mb-4">Real readings. Real clarity. Real calm.</p>
+            
+            {/* Image Slider Wrapper */}
+            <div className="relative flex-1 overflow-hidden rounded-2xl border border-white/80 bg-white shadow-sm min-h-[250px]">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={imageIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  src={galleryImages[imageIndex].src}
+                  alt={galleryImages[imageIndex].alt}
+                  className="absolute inset-0 aspect-square h-full w-full object-cover"
+                />
+              </AnimatePresence>
             </div>
           </Tile>
 
+          {/* Removed className="h-fit" so this stretches to match the row's height naturally */}
           <Tile delay={0.2}>
             <div className="mb-3 flex items-center gap-2">
               <Video className="h-5 w-5 text-gold" />
               <h2 className="font-heading text-xl font-semibold text-slate-900">Watch a live reading</h2>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-gold/20 bg-slate-900/5">
+            <div className="overflow-hidden rounded-2xl border border-gold/20 bg-slate-900/5 flex-1 flex items-center justify-center">
               <video
-                className="aspect-video w-full object-cover"
+                className="aspect-video w-full h-full object-cover"
                 controls
                 preload="metadata"
                 playsInline
