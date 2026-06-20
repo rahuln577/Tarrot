@@ -3,6 +3,7 @@ import BookingPage from './pages/BookingPage'
 import BookingSuccessPage from './pages/BookingSuccessPage'
 import CrystalShopPage from './pages/CrystalShopPage'
 import CrystalSuccessPage from './pages/CrystalSuccessPage'
+import AboutPage from './pages/AboutPage'
 import HomePage from './pages/HomePage'
 import Footer from './components/layout/Footer'
 import Navbar from './components/layout/Navbar'
@@ -14,6 +15,7 @@ export default function App() {
       <main className="section-container pt-20 pb-10 sm:pb-14">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/booking" element={<BookingPage />} />
           <Route path="/booking/success" element={<BookingSuccessPage />} />
           <Route path="/crystals" element={<CrystalShopPage />} />

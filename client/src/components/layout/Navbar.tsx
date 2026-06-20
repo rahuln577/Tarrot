@@ -19,7 +19,7 @@ export default function Navbar() {
 
         <nav className="flex shrink-0 items-center gap-1 sm:gap-2">
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link to="/#about">About</Link>
+            <Link to="/about">About</Link>
           </Button>
           <Button asChild size="sm" className="px-2 text-xs sm:px-3 sm:text-sm">
             <Link to="/booking">Book</Link>

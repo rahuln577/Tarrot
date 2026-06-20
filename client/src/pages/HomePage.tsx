@@ -177,10 +177,85 @@ export default function HomePage() {
         </section>
       </FadeInUp>
 
-      {/* Bento grid — company info first, booking last */}
+      {/* Bento grid */}
       <section className="grid w-full max-w-full grid-cols-1 items-start gap-4 md:grid-cols-12 md:gap-5">
+        {/* Booking calendar tile */}
+        <Tile className="md:col-span-7 md:row-span-2" delay={0.05}>
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 text-gold">
+                <CalendarDays className="h-5 w-5" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Book a session</span>
+              </div>
+              <h2 className="mt-2 font-heading text-2xl font-semibold text-slate-900 sm:text-3xl">
+                Pick your date & time
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">Secure checkout + Google Meet invite after payment.</p>
+            </div>
+            <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
+              live slots
+            </span>
+          </div>
+
+          <div className="flex w-full flex-col items-stretch gap-4 lg:flex-row lg:items-start lg:gap-6">
+            <div className="mx-auto w-full max-w-full rounded-2xl border border-gold/15 bg-gradient-to-br from-amber-50/80 to-white lg:mx-0 lg:w-fit lg:shrink-0">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                disabled={{ before: new Date() }}
+                className="mx-auto p-2"
+              />
+            </div>
+
+            <div className="flex w-full min-w-0 flex-col gap-4 lg:max-w-sm lg:flex-1">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Time slots</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {TIME_SLOTS.map((slot) => {
+                    const active = slot === selectedTime
+                    return (
+                      <button
+                        key={slot}
+                        type="button"
+                        disabled={!selectedDate}
+                        onClick={() => setSelectedTime(slot)}
+                        className={[
+                          'rounded-xl border px-3 py-2 text-sm font-medium transition',
+                          !selectedDate && 'cursor-not-allowed opacity-40',
+                          active
+                            ? 'border-gold bg-gold/15 text-slate-900 shadow-goldGlow'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-gold/40 hover:bg-gold/5',
+                        ].join(' ')}
+                      >
+                        {slot}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Your pick</p>
+                <p className="text-sm font-medium text-slate-800">
+                  {formattedSelection ?? 'Select a date and time to continue'}
+                </p>
+                {bookingReady ? (
+                  <Button asChild size="lg" className="w-full">
+                    <Link to="/booking">Continue booking</Link>
+                  </Button>
+                ) : (
+                  <Button size="lg" className="w-full" disabled>
+                    Choose date & time
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Tile>
+
         {/* Profile tile */}
-        <Tile className="md:col-span-5" delay={0.05}>
+        <Tile className="md:col-span-5" delay={0.08}>
           <div className="flex flex-col gap-4">
             <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-violet-50 to-amber-50 p-3">
               <img
@@ -204,35 +279,15 @@ export default function HomePage() {
               Tarot is a mirror to the soul — compassionate, non-judgmental guidance in a safe space.
             </p>
             <Button asChild variant="outline" className="w-full">
-              <Link to="/#about">
+              <Link to="/about">
                 Meet Roopa <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
           </div>
         </Tile>
 
-        {/* Philosophy tile */}
-        <Tile className="md:col-span-7" delay={0.08} id="about">
-          <Quote className="h-8 w-8 text-gold/80" />
-          <h2 className="mt-3 font-heading text-xl font-semibold text-slate-900">The vibe</h2>
-          <p className="mt-3 text-sm leading-relaxed text-slate-700">
-            I believe tarot reveals patterns you can&apos;t always see. My sessions are warm, honest, and
-            empowering — so you leave with clarity you can actually use.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {['No judgment', 'Real talk', 'Safe space', 'Actionable clarity'].map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-800"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </Tile>
-
         {/* Services tile */}
-        <Tile className="md:col-span-4" delay={0.1}>
+        <Tile className="md:col-span-5" delay={0.1}>
           <div className="mb-4 flex items-center gap-2">
             <Wand2 className="h-5 w-5 text-gold" />
             <h2 className="font-heading text-xl font-semibold text-slate-900">Choose your reading</h2>
@@ -289,8 +344,28 @@ export default function HomePage() {
           </div>
         </Tile>
 
-        {/* Testimonials tile */}
+        {/* Philosophy tile */}
         <Tile className="md:col-span-4" delay={0.14}>
+          <Quote className="h-8 w-8 text-gold/80" />
+          <h2 className="mt-3 font-heading text-xl font-semibold text-slate-900">The vibe</h2>
+          <p className="mt-3 text-sm leading-relaxed text-slate-700">
+            I believe tarot reveals patterns you can&apos;t always see. My sessions are warm, honest, and
+            empowering — so you leave with clarity you can actually use.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {['No judgment', 'Real talk', 'Safe space', 'Actionable clarity'].map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-800"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </Tile>
+
+        {/* Testimonials tile */}
+        <Tile className="md:col-span-4" delay={0.16}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 fill-gold text-gold" />
@@ -324,7 +399,7 @@ export default function HomePage() {
         </Tile>
 
         {/* Gallery tile */}
-        <Tile className="md:col-span-6" delay={0.16}>
+        <Tile className="md:col-span-6" delay={0.18}>
           <h2 className="font-heading text-xl font-semibold text-slate-900">Session moments</h2>
           <p className="mt-1 text-sm text-slate-600">Real readings. Real clarity. Real calm.</p>
           <div className="mt-4 grid w-full grid-cols-2 gap-2">
@@ -345,7 +420,7 @@ export default function HomePage() {
         </Tile>
 
         {/* Video tile */}
-        <Tile className="md:col-span-6" delay={0.18}>
+        <Tile className="md:col-span-6" delay={0.2}>
           <div className="mb-3 flex items-center gap-2">
             <Video className="h-5 w-5 text-gold" />
             <h2 className="font-heading text-xl font-semibold text-slate-900">Watch a live reading</h2>
@@ -366,77 +441,26 @@ export default function HomePage() {
           </div>
         </Tile>
 
-        {/* Booking calendar tile — bottom */}
-        <Tile className="md:col-span-12" delay={0.2}>
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        {/* CTA tile */}
+        <Tile className="md:col-span-12" delay={0.22}>
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <div className="flex items-center gap-2 text-gold">
-                <CalendarDays className="h-5 w-5" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Book a session</span>
-              </div>
-              <h2 className="mt-2 font-heading text-2xl font-semibold text-slate-900 sm:text-3xl">
-                Pick your date & time
+              <h2 className="font-heading text-2xl font-semibold text-slate-900 sm:text-3xl">
+                Ready when you are ✨
               </h2>
-              <p className="mt-1 text-sm text-slate-600">Secure checkout + Google Meet invite after payment.</p>
+              <p className="mt-1 max-w-xl text-sm text-slate-600">
+                Book a session, pay securely, and get your Google Meet link after confirmation.
+              </p>
             </div>
-            <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
-              live slots
-            </span>
-          </div>
-
-          <div className="flex w-full flex-col items-stretch gap-4 sm:flex-row sm:items-start sm:gap-6">
-            <div className="mx-auto w-full max-w-full rounded-2xl border border-gold/15 bg-gradient-to-br from-amber-50/80 to-white sm:mx-0 sm:w-fit sm:shrink-0">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                disabled={{ before: new Date() }}
-                className="mx-auto p-2"
-              />
-            </div>
-
-            <div className="flex w-full min-w-0 flex-col gap-4 sm:max-w-sm sm:flex-1">
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Time slots</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {TIME_SLOTS.map((slot) => {
-                    const active = slot === selectedTime
-                    return (
-                      <button
-                        key={slot}
-                        type="button"
-                        disabled={!selectedDate}
-                        onClick={() => setSelectedTime(slot)}
-                        className={[
-                          'rounded-xl border px-3 py-2 text-sm font-medium transition',
-                          !selectedDate && 'cursor-not-allowed opacity-40',
-                          active
-                            ? 'border-gold bg-gold/15 text-slate-900 shadow-goldGlow'
-                            : 'border-slate-200 bg-white text-slate-700 hover:border-gold/40 hover:bg-gold/5',
-                        ].join(' ')}
-                      >
-                        {slot}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Your pick</p>
-                <p className="text-sm font-medium text-slate-800">
-                  {formattedSelection ?? 'Select a date and time to continue'}
-                </p>
-                {bookingReady ? (
-                  <Button asChild size="lg" className="w-full">
-                    <Link to="/booking">Continue booking</Link>
-                  </Button>
-                ) : (
-                  <Button size="lg" className="w-full" disabled>
-                    Choose date & time
-                  </Button>
-                )}
-              </div>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <Button asChild size="lg" className="w-full sm:w-auto">
+                <Link to="/booking">
+                  Book now <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+                <Link to="/crystals">Crystal shop</Link>
+              </Button>
             </div>
           </div>
         </Tile>
