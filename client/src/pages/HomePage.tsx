@@ -87,19 +87,17 @@ function Tile({
   id?: string
 }) {
   return (
-    <FadeInUp delay={delay}>
-      <motion.div
-        id={id}
-        whileHover={{ y: -4 }}
-        transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-        className={[
-          'group relative overflow-hidden rounded-3xl border border-white/70 bg-white/75 p-5 shadow-[0_8px_32px_rgba(15,23,42,0.06)] backdrop-blur-md sm:p-6',
-          'before:pointer-events-none before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br before:from-white/50 before:to-transparent before:opacity-0 before:transition-opacity group-hover:before:opacity-100',
-          className,
-        ].join(' ')}
-      >
+    <FadeInUp
+      delay={delay}
+      className={[
+        'group relative min-w-0 overflow-hidden rounded-3xl border border-white/70 bg-white/75 p-5 shadow-[0_8px_32px_rgba(15,23,42,0.06)] backdrop-blur-md transition-transform hover:-translate-y-1 sm:p-6',
+        'before:pointer-events-none before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br before:from-white/50 before:to-transparent before:opacity-0 before:transition-opacity group-hover:before:opacity-100',
+        className,
+      ].join(' ')}
+    >
+      <div id={id} className="relative h-full">
         {children}
-      </motion.div>
+      </div>
     </FadeInUp>
   )
 }
@@ -179,7 +177,7 @@ export default function HomePage() {
       </FadeInUp>
 
       {/* Bento grid */}
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-12 md:auto-rows-min">
+      <section className="grid w-full grid-cols-1 gap-4 md:grid-cols-12 md:gap-5">
         {/* Booking calendar tile */}
         <Tile className="md:col-span-7 md:row-span-2" delay={0.05}>
           <div className="mb-4 flex items-start justify-between gap-3">
@@ -402,15 +400,11 @@ export default function HomePage() {
         <Tile className="md:col-span-6" delay={0.18}>
           <h2 className="font-heading text-xl font-semibold text-slate-900">Session moments</h2>
           <p className="mt-1 text-sm text-slate-600">Real readings. Real clarity. Real calm.</p>
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {galleryImages.map((img, i) => (
-              <motion.div
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {galleryImages.map((img) => (
+              <div
                 key={img.src}
-                whileHover={{ scale: 1.03 }}
-                className={[
-                  'overflow-hidden rounded-2xl border border-white/80 bg-white shadow-sm',
-                  i === 0 ? 'sm:col-span-2 sm:row-span-2' : '',
-                ].join(' ')}
+                className="overflow-hidden rounded-2xl border border-white/80 bg-white shadow-sm transition-transform hover:scale-[1.02]"
               >
                 <img
                   src={img.src}
@@ -418,7 +412,7 @@ export default function HomePage() {
                   loading="lazy"
                   className="aspect-square h-full w-full object-cover"
                 />
-              </motion.div>
+              </div>
             ))}
           </div>
         </Tile>
