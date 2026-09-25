@@ -38,13 +38,6 @@ async function createShopOrder(params: {
   return data as ShopOrderCreateResponse
 }
 
-async function getShopOrderStatus(shopOrderId: string) {
-  const res = await fetch(`/api/shop/status/${shopOrderId}`)
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data?.error || 'Failed to fetch order status')
-  return data as { status: 'Pending' | 'Paid' | 'Cancelled' }
-}
-
 export default function CrystalShopPage() {
   const navigate = useNavigate()
   const [products, setProducts] = useState<Product[]>([])
@@ -133,26 +126,7 @@ export default function CrystalShopPage() {
         onSuccess: async (response) => {
           try {
             await verifyPayment(response)
-            setMessage('Payment successful. Waiting for confirmation email...')
-
-            const start = Date.now()
-            while (Date.now() - start < 60_000) {
-              try {
-                const s = await getShopOrderStatus(order.shopOrderId)
-                if (s.status === 'Paid') {
-                  setMessage('Confirmed! Redirecting to confirmation...')
-                  navigate(`/crystals/success?shopOrderId=${encodeURIComponent(order.shopOrderId)}`)
-                  return
-                }
-              } catch {
-                // ignore transient errors
-              }
-              await new Promise((r) => setTimeout(r, 2500))
-            }
-
-            setMessage(
-              'Payment received. Confirmation may take a moment — please check your email shortly.',
-            )
+            navigate(`/crystals/success?shopOrderId=${encodeURIComponent(order.shopOrderId)}`)
           } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Payment could not be verified.'
             setMessage(msg)
