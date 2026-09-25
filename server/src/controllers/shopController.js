@@ -1,7 +1,6 @@
-const Razorpay = require('razorpay')
-const { RAZORPAY_KEY_ID, RAZORPAY_SECRET } = require('../config/env')
 const Product = require('../models/Product')
 const Order = require('../models/Order')
+const { MIN_AMOUNT_PAISE, getRazorpayClient, mapRazorpayError, RAZORPAY_KEY_ID } = require('../services/razorpayClient')
 
 async function createShopOrder(req, res) {
   try {
@@ -22,11 +21,11 @@ async function createShopOrder(req, res) {
       return res.status(404).json({ error: 'Product not found.' })
     }
 
-    if (!RAZORPAY_KEY_ID || !RAZORPAY_SECRET) {
-      return res.status(500).json({ error: 'Razorpay env vars missing on server.' })
-    }
-
     const subtotal = product.price * qty
+    const amountPaise = Math.round(subtotal * 100)
+    if (amountPaise < MIN_AMOUNT_PAISE) {
+      return res.status(400).json({ error: `Amount must be at least ${MIN_AMOUNT_PAISE} paise.` })
+    }
 
     const orderDoc = await Order.create({
       userEmail: email.toLowerCase().trim(),
@@ -44,9 +43,9 @@ async function createShopOrder(req, res) {
       status: 'Pending',
     })
 
-    const razorpay = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_SECRET })
+    const razorpay = getRazorpayClient()
     const order = await razorpay.orders.create({
-      amount: Math.round(subtotal * 100), // paise
+      amount: amountPaise,
       currency: 'INR',
       receipt: orderDoc._id.toString(),
       notes: { shopOrderId: orderDoc._id.toString() },
@@ -65,7 +64,8 @@ async function createShopOrder(req, res) {
     })
   } catch (err) {
     console.error('createShopOrder error:', err)
-    return res.status(500).json({ error: 'Failed to create shop order.' })
+    const mapped = mapRazorpayError(err)
+    return res.status(mapped.statusCode).json({ error: mapped.error })
   }
 }
 
@@ -87,4 +87,3 @@ async function getShopOrderStatus(req, res) {
 }
 
 module.exports = { createShopOrder, getShopOrderStatus }
-

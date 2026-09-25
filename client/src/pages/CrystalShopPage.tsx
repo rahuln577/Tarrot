@@ -4,27 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { FadeInUp } from '../components/animations/FadeInUp'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
-
-type RazorpayInstance = { open: () => void }
-type RazorpayCheckoutOptions = {
-  key: string
-  amount: number
-  currency: string
-  name: string
-  order_id: string
-  prefill?: { name?: string; email?: string }
-  notes?: Record<string, unknown>
-  theme?: { color?: string }
-  handler: (response: unknown) => void | Promise<void>
-}
-
-type RazorpayConstructor = new (options: RazorpayCheckoutOptions) => RazorpayInstance
-
-declare global {
-  interface Window {
-    Razorpay?: RazorpayConstructor
-  }
-}
+import { getRazorpayKeyId, loadRazorpayScript, openRazorpayCheckout, verifyPayment } from '../lib/razorpay'
 
 type Product = {
   id: string
@@ -41,26 +21,13 @@ type ShopOrderCreateResponse = {
   shopOrderId: string
 }
 
-function loadRazorpayScript() {
-  return new Promise<void>((resolve, reject) => {
-    if (window.Razorpay) return resolve()
-
-    const script = document.createElement('script')
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-    script.async = true
-    script.onload = () => resolve()
-    script.onerror = () => reject(new Error('Failed to load Razorpay checkout script'))
-    document.body.appendChild(script)
-  })
-}
-
 async function createShopOrder(params: {
   name: string
   email: string
   productId: string
   quantity: number
 }) {
-  const res = await fetch('https://tarrot-eyi5.onrender.com/api/shop/create', {
+  const res = await fetch('/api/shop/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
@@ -72,7 +39,7 @@ async function createShopOrder(params: {
 }
 
 async function getShopOrderStatus(shopOrderId: string) {
-  const res = await fetch(`https://tarrot-eyi5.onrender.com/api/shop/status/${shopOrderId}`)
+  const res = await fetch(`/api/shop/status/${shopOrderId}`)
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch order status')
   return data as { status: 'Pending' | 'Paid' | 'Cancelled' }
@@ -95,7 +62,7 @@ export default function CrystalShopPage() {
     ;(async () => {
       try {
         setLoading(true)
-        const res = await fetch('https://tarrot-eyi5.onrender.com/api/products')
+        const res = await fetch('/api/products')
         const data = await res.json().catch(() => ({}))
         const list: Product[] = (data?.products || []).map(
           (p: { _id?: string; id?: string; name: string; description?: string; price: number }) => ({
@@ -147,47 +114,56 @@ export default function CrystalShopPage() {
         quantity: qty,
       })
 
-      const options = {
-        key: order.keyId,
+      openRazorpayCheckout({
+        key: getRazorpayKeyId(order.keyId),
         amount: order.amount,
         currency: order.currency,
         name: 'Anandamayii Roopa',
         order_id: order.orderId,
         prefill: { name, email },
         theme: { color: '#D4AF37' },
-        handler: async function (_response: unknown) {
-          void _response
-          setMessage('Payment successful. Waiting for confirmation email...')
-
-          const start = Date.now()
-          while (Date.now() - start < 60_000) {
-            try {
-              const s = await getShopOrderStatus(order.shopOrderId)
-              if (s.status === 'Paid') {
-                setMessage('Confirmed! Redirecting to confirmation...')
-                navigate(
-                  `/crystals/success?shopOrderId=${encodeURIComponent(order.shopOrderId)}`,
-                )
-                return
-              }
-            } catch {
-              // ignore transient errors
-            }
-            await new Promise((r) => setTimeout(r, 2500))
-          }
-
-          setMessage(
-            'Payment received. Confirmation may take a moment — please check your email shortly.',
-          )
+        onDismiss: () => {
+          setMessage('Payment cancelled.')
+          setIsPaying(false)
         },
-      }
+        onFailure: (msg) => {
+          setMessage(msg)
+          setIsPaying(false)
+        },
+        onSuccess: async (response) => {
+          try {
+            await verifyPayment(response)
+            setMessage('Payment successful. Waiting for confirmation email...')
 
-      const rzp = new window.Razorpay!(options)
-      rzp.open()
+            const start = Date.now()
+            while (Date.now() - start < 60_000) {
+              try {
+                const s = await getShopOrderStatus(order.shopOrderId)
+                if (s.status === 'Paid') {
+                  setMessage('Confirmed! Redirecting to confirmation...')
+                  navigate(`/crystals/success?shopOrderId=${encodeURIComponent(order.shopOrderId)}`)
+                  return
+                }
+              } catch {
+                // ignore transient errors
+              }
+              await new Promise((r) => setTimeout(r, 2500))
+            }
+
+            setMessage(
+              'Payment received. Confirmation may take a moment — please check your email shortly.',
+            )
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Payment could not be verified.'
+            setMessage(msg)
+          } finally {
+            setIsPaying(false)
+          }
+        },
+      })
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Could not start checkout.'
       setMessage(msg)
-    } finally {
       setIsPaying(false)
     }
   }

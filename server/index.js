@@ -1,4 +1,5 @@
-require('dotenv').config()
+require('dotenv').config({ path: require('path').join(__dirname, '../.env') })
+require('dotenv').config({ path: require('path').join(__dirname, '.env') })
 
 const mongoose = require('mongoose')
 const { PORT, MONGODB_URI } = require('./src/config/env')

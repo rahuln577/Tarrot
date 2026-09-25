@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'https://tarrot-eyi5.onrender.com',
+      '/api': 'http://localhost:5000',
     },
   },
 })

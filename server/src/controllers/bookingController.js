@@ -1,7 +1,6 @@
-const Razorpay = require('razorpay')
-const { RAZORPAY_KEY_ID, RAZORPAY_SECRET } = require('../config/env')
-const User = require('../models/User')
 const Appointment = require('../models/Appointment')
+const User = require('../models/User')
+const { MIN_AMOUNT_PAISE, getRazorpayClient, mapRazorpayError, RAZORPAY_KEY_ID } = require('../services/razorpayClient')
 
 function getAmountInRupees(input) {
   const n = Number(input)
@@ -31,12 +30,14 @@ async function createBookingOrder(req, res) {
     const duration = durationMinutes ? Number(durationMinutes) : 60
     const finalDuration = Number.isFinite(duration) && duration > 0 ? duration : 60
 
-    // Frontend can send exact price; if not, default to 1 paise (0.01 INR) for testing.
-    const inferred = getAmountInRupees(amountInRupees) ?? 0.01;
-    const amount = inferred
+    const inferred = getAmountInRupees(amountInRupees)
+    if (inferred == null) {
+      return res.status(400).json({ error: 'Missing or invalid `amountInRupees`.' })
+    }
 
-    if (!RAZORPAY_KEY_ID || !RAZORPAY_SECRET) {
-      return res.status(500).json({ error: 'Razorpay env vars missing on server.' })
+    const amountPaise = Math.round(inferred * 100)
+    if (amountPaise < MIN_AMOUNT_PAISE) {
+      return res.status(400).json({ error: `Amount must be at least ${MIN_AMOUNT_PAISE} paise.` })
     }
 
     const user = await User.findOneAndUpdate(
@@ -54,10 +55,9 @@ async function createBookingOrder(req, res) {
       status: 'Pending',
     })
 
-    const razorpay = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_SECRET })
-
+    const razorpay = getRazorpayClient()
     const order = await razorpay.orders.create({
-      amount: Math.round(amount * 100), // paise
+      amount: amountPaise,
       currency: 'INR',
       receipt: appointment._id.toString(),
       notes: { appointmentId: appointment._id.toString() },
@@ -75,7 +75,8 @@ async function createBookingOrder(req, res) {
     })
   } catch (err) {
     console.error('createBookingOrder error:', err)
-    return res.status(500).json({ error: 'Failed to create booking order.' })
+    const mapped = mapRazorpayError(err)
+    return res.status(mapped.statusCode).json({ error: mapped.error })
   }
 }
 
@@ -104,4 +105,3 @@ async function getBookingStatus(req, res) {
 }
 
 module.exports = { createBookingOrder, getBookingStatus }
-

@@ -5,6 +5,7 @@ const { handleRazorpayWebhook } = require('./webhooks/razorpayWebhook')
 const bookingRoutes = require('./routes/bookingRoutes')
 const productRoutes = require('./routes/productRoutes')
 const shopRoutes = require('./routes/shopRoutes')
+const razorpayRoutes = require('./routes/razorpayRoutes')
 
 function createApp() {
   const app = express()
@@ -25,6 +26,7 @@ function createApp() {
   app.use('/api/booking', bookingRoutes)
   app.use('/api/products', productRoutes)
   app.use('/api/shop', shopRoutes)
+  app.use('/api', razorpayRoutes)
 
   return app
 }
