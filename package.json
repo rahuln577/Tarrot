@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "build": "echo 'Backend deployment ready'",
     "start": "node server/index.js",
     "seed": "node server/seed.js",
     "package:lambda": "node scripts/package-lambda.js",
