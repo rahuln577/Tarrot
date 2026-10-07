@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Anandamayii Roopa Tarot Booking API on AWS Lambda
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: nodejs20.x
+    Architectures:
+      - arm64
+
+Resources:
+  AnandamayiiApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: server/lambda.handler
+      Events:
+        ProxyApiRoot:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: ANY
+        ProxyApiGreedy:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+      Environment:
+        Variables:
+          MONGODB_URI: '{{resolve:ssm:/anandamayii/mongodb_uri:1}}'
+          RAZORPAY_KEY_ID: '{{resolve:ssm:/anandamayii/razorpay_key_id:1}}'
+          RAZORPAY_KEY_SECRET: '{{resolve:ssm:/anandamayii/razorpay_key_secret:1}}'
+          RAZORPAY_WEBHOOK_SECRET: '{{resolve:ssm:/anandamayii/razorpay_webhook_secret:1}}'
+          GOOGLE_CLIENT_EMAIL: '{{resolve:ssm:/anandamayii/google_client_email:1}}'
+          GOOGLE_PRIVATE_KEY: '{{resolve:ssm:/anandamayii/google_private_key:1}}'
+          GOOGLE_CALENDAR_ID: '{{resolve:ssm:/anandamayii/google_calendar_id:1}}'
+          GOOGLE_OWNER_EMAIL: '{{resolve:ssm:/anandamayii/google_owner_email:1}}'
+          SMTP_HOST: '{{resolve:ssm:/anandamayii/smtp_host:1}}'
+          SMTP_PORT: '{{resolve:ssm:/anandamayii/smtp_port:1}}'
+          SMTP_USER: '{{resolve:ssm:/anandamayii/smtp_user:1}}'
+          SMTP_PASS: '{{resolve:ssm:/anandamayii/smtp_pass:1}}'
+          EMAIL_FROM: '{{resolve:ssm:/anandamayii/email_from:1}}'
+
+Outputs:
+  HttpApiUrl:
+    Description: URL of the HTTP API Gateway endpoint
+    Value: !Sub 'https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com'

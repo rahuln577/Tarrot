@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const Product = require('../models/Product')
 const Order = require('../models/Order')
 const { MIN_AMOUNT_PAISE, getRazorpayClient, mapRazorpayError, RAZORPAY_KEY_ID } = require('../services/razorpayClient')
@@ -6,15 +7,18 @@ async function createShopOrder(req, res) {
   try {
     const { name, email, productId, quantity } = req.body || {}
 
-    if (!email || typeof email !== 'string') {
-      return res.status(400).json({ error: 'Missing `email`.' })
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return res.status(400).json({ error: 'A valid email address is required.' })
     }
-    if (!productId || typeof productId !== 'string') {
-      return res.status(400).json({ error: 'Missing `productId`.' })
+    if (!productId || typeof productId !== 'string' || !mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ error: 'Invalid or missing productId.' })
     }
 
     const q = quantity ? Number(quantity) : 1
-    const qty = Number.isFinite(q) && q > 0 ? Math.floor(q) : 1
+    if (!Number.isInteger(q) || q < 1 || q > 100) {
+      return res.status(400).json({ error: 'Quantity must be an integer between 1 and 100.' })
+    }
+    const qty = q
 
     const product = await Product.findById(productId)
     if (!product) {
@@ -27,9 +31,12 @@ async function createShopOrder(req, res) {
       return res.status(400).json({ error: `Amount must be at least ${MIN_AMOUNT_PAISE} paise.` })
     }
 
+    const cleanEmail = email.toLowerCase().trim()
+    const cleanName = name ? name.toString().trim() : ''
+
     const orderDoc = await Order.create({
-      userEmail: email.toLowerCase().trim(),
-      userName: name?.toString().trim(),
+      userEmail: cleanEmail,
+      userName: cleanName,
       items: [
         {
           product: product._id,
@@ -48,7 +55,14 @@ async function createShopOrder(req, res) {
       amount: amountPaise,
       currency: 'INR',
       receipt: orderDoc._id.toString(),
-      notes: { shopOrderId: orderDoc._id.toString() },
+      notes: {
+        shopOrderId: orderDoc._id.toString(),
+        productId: product._id.toString(),
+        productName: product.name,
+        quantity: String(qty),
+        customerName: cleanName,
+        customerEmail: cleanEmail,
+      },
     })
 
     orderDoc.razorpayOrderId = order.id
@@ -72,13 +86,23 @@ async function createShopOrder(req, res) {
 async function getShopOrderStatus(req, res) {
   try {
     const { shopOrderId } = req.params
-    const order = await Order.findById(shopOrderId).select('status subtotal currency')
+
+    if (!mongoose.Types.ObjectId.isValid(shopOrderId)) {
+      return res.status(400).json({ error: 'Invalid shop order ID format.' })
+    }
+
+    const order = await Order.findById(shopOrderId).select(
+      'status subtotal currency items razorpayOrderId razorpayPaymentId',
+    )
     if (!order) return res.status(404).json({ error: 'Order not found.' })
+
     return res.json({
       shopOrderId: order._id.toString(),
       status: order.status,
       subtotal: order.subtotal,
       currency: order.currency,
+      items: order.items,
+      paid: order.status === 'Paid',
     })
   } catch (err) {
     console.error('getShopOrderStatus error:', err)

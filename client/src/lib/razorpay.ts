@@ -1,3 +1,5 @@
+import { apiUrl } from './api'
+
 export type RazorpayCheckoutResponse = {
   razorpay_payment_id: string
   razorpay_order_id: string
@@ -48,7 +50,7 @@ export function loadRazorpayScript() {
 }
 
 export async function verifyPayment(response: RazorpayCheckoutResponse) {
-  const res = await fetch('/api/verify-payment', {
+  const res = await fetch(apiUrl('/api/verify-payment'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

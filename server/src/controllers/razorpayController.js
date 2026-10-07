@@ -57,8 +57,9 @@ async function verifyPayment(req, res) {
       return res.status(400).json({ error: 'Invalid payment signature.', paid: false })
     }
 
+    let confirmationResult = null
     try {
-      await confirmPaymentByOrderId({
+      confirmationResult = await confirmPaymentByOrderId({
         razorpayOrderId: razorpay_order_id,
         razorpayPaymentId: razorpay_payment_id,
       })
@@ -71,6 +72,8 @@ async function verifyPayment(req, res) {
       paid: true,
       razorpay_order_id,
       razorpay_payment_id,
+      kind: confirmationResult?.kind || null,
+      id: confirmationResult?.id || null,
     })
   } catch (err) {
     console.error('verifyPayment error:', err)

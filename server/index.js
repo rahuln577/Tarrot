@@ -1,17 +1,13 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') })
 require('dotenv').config({ path: require('path').join(__dirname, '.env') })
 
-const mongoose = require('mongoose')
-const { PORT, MONGODB_URI } = require('./src/config/env')
+const { PORT } = require('./src/config/env')
+const { connectToDatabase } = require('./src/config/db')
 const { createApp } = require('./src/app')
 const { seedProductsIfEmpty } = require('./src/config/seedProducts')
 
 async function main() {
-  if (!MONGODB_URI) {
-    throw new Error('Missing MONGODB_URI. Check server/.env')
-  }
-
-  await mongoose.connect(MONGODB_URI)
+  await connectToDatabase()
   console.log('Connected to MongoDB')
 
   await seedProductsIfEmpty()
@@ -26,4 +22,3 @@ main().catch((err) => {
   console.error('Server start failed:', err)
   process.exit(1)
 })
-

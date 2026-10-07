@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { FadeInUp } from '../components/animations/FadeInUp'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { apiUrl } from '../lib/api'
 
 type ShopOrderStatus = 'Pending' | 'Paid' | 'Cancelled'
 
@@ -15,7 +16,7 @@ type ShopOrderStatusResponse = {
 }
 
 async function getShopOrderStatus(shopOrderId: string): Promise<ShopOrderStatusResponse> {
-  const res = await fetch(`/api/shop/status/${shopOrderId}`)
+  const res = await fetch(apiUrl(`/api/shop/status/${encodeURIComponent(shopOrderId)}`))
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch order status')
   return data as ShopOrderStatusResponse

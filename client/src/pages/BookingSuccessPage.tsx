@@ -4,6 +4,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { FadeInUp } from '../components/animations/FadeInUp'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { apiUrl } from '../lib/api'
 
 type BookingStatus = 'Pending' | 'Confirmed' | 'Cancelled'
 
@@ -16,7 +17,7 @@ type BookingStatusResponse = {
 }
 
 async function getBookingStatus(appointmentId: string): Promise<BookingStatusResponse> {
-  const res = await fetch(`/api/booking/status/${appointmentId}`)
+  const res = await fetch(apiUrl(`/api/booking/status/${encodeURIComponent(appointmentId)}`))
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data?.error || 'Failed to fetch booking status')
   return data as BookingStatusResponse

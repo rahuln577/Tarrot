@@ -5,6 +5,7 @@ import { FadeInUp } from '../components/animations/FadeInUp'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { getRazorpayKeyId, loadRazorpayScript, openRazorpayCheckout, verifyPayment } from '../lib/razorpay'
+import { apiUrl } from '../lib/api'
 
 type Product = {
   id: string
@@ -27,7 +28,7 @@ async function createShopOrder(params: {
   productId: string
   quantity: number
 }) {
-  const res = await fetch('/api/shop/create', {
+  const res = await fetch(apiUrl('/api/shop/create'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
@@ -55,7 +56,7 @@ export default function CrystalShopPage() {
     ;(async () => {
       try {
         setLoading(true)
-        const res = await fetch('/api/products')
+        const res = await fetch(apiUrl('/api/products'))
         const data = await res.json().catch(() => ({}))
         const list: Product[] = (data?.products || []).map(
           (p: { _id?: string; id?: string; name: string; description?: string; price: number }) => ({

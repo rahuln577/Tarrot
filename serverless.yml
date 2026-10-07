@@ -1,0 +1,47 @@
+service: anandamayii-roopa-api
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-south-1 # Mumbai (optimal for Razorpay & Indian audience)
+  memorySize: 512
+  timeout: 30
+  environment:
+    MONGODB_URI: ${env:MONGODB_URI}
+    RAZORPAY_KEY_ID: ${env:RAZORPAY_KEY_ID}
+    RAZORPAY_KEY_SECRET: ${env:RAZORPAY_KEY_SECRET}
+    RAZORPAY_WEBHOOK_SECRET: ${env:RAZORPAY_WEBHOOK_SECRET}
+    GOOGLE_CLIENT_EMAIL: ${env:GOOGLE_CLIENT_EMAIL}
+    GOOGLE_PRIVATE_KEY: ${env:GOOGLE_PRIVATE_KEY}
+    GOOGLE_CALENDAR_ID: ${env:GOOGLE_CALENDAR_ID}
+    GOOGLE_OWNER_EMAIL: ${env:GOOGLE_OWNER_EMAIL}
+    SMTP_HOST: ${env:SMTP_HOST}
+    SMTP_PORT: ${env:SMTP_PORT}
+    SMTP_USER: ${env:SMTP_USER}
+    SMTP_PASS: ${env:SMTP_PASS}
+    EMAIL_FROM: ${env:EMAIL_FROM}
+    CLIENT_ORIGIN: ${env:CLIENT_ORIGIN, '*'}
+
+package:
+  patterns:
+    - '!client/**'
+    - '!dist-lambda/**'
+    - '!lambda.zip'
+    - '!.git/**'
+    - '!.env'
+    - '!server/.env'
+    - '!client/.env'
+    - '!README.md'
+
+functions:
+  api:
+    handler: server/lambda.handler
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+      - httpApi:
+          path: /
+          method: ANY

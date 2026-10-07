@@ -2,5 +2,9 @@ node_modules
 .env
 server/.env
 client/.env
+client/.env.production
+.env.aws
 dist
+dist-lambda
+lambda.zip
 .DS_Store

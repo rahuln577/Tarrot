@@ -1,57 +1,67 @@
+const mongoose = require('mongoose')
 const Appointment = require('../models/Appointment')
 const User = require('../models/User')
 const { MIN_AMOUNT_PAISE, getRazorpayClient, mapRazorpayError, RAZORPAY_KEY_ID } = require('../services/razorpayClient')
+const { getServiceByType, getAllServices } = require('../config/services')
 
-function getAmountInRupees(input) {
-  const n = Number(input)
-  if (!Number.isFinite(n) || n <= 0) return undefined
-  return n
+async function listServices(req, res) {
+  return res.json({ services: getAllServices() })
 }
 
 async function createBookingOrder(req, res) {
   try {
-    const { name, email, serviceType, scheduledAt, durationMinutes, amountInRupees } = req.body || {}
+    const { name, email, serviceType, scheduledAt } = req.body || {}
 
-    if (!email || typeof email !== 'string') {
-      return res.status(400).json({ error: 'Missing `email`.' })
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return res.status(400).json({ error: 'A valid email address is required.' })
+    }
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json({ error: 'Name is required.' })
     }
     if (!serviceType || typeof serviceType !== 'string') {
-      return res.status(400).json({ error: 'Missing `serviceType`.' })
+      return res.status(400).json({ error: 'Missing serviceType.' })
     }
+
+    const service = getServiceByType(serviceType)
+    if (!service) {
+      return res.status(400).json({
+        error: `Invalid serviceType '${serviceType}'. Available services: ${getAllServices().map((s) => s.serviceType).join(', ')}`,
+      })
+    }
+
     if (!scheduledAt) {
-      return res.status(400).json({ error: 'Missing `scheduledAt` (ISO string).' })
+      return res.status(400).json({ error: 'Missing scheduledAt (ISO date string).' })
     }
 
     const when = new Date(scheduledAt)
     if (Number.isNaN(when.getTime())) {
-      return res.status(400).json({ error: 'Invalid `scheduledAt`.' })
+      return res.status(400).json({ error: 'Invalid scheduledAt date format.' })
     }
 
-    const duration = durationMinutes ? Number(durationMinutes) : 60
-    const finalDuration = Number.isFinite(duration) && duration > 0 ? duration : 60
+    // Use authoritative server-side pricing and duration
+    const priceInRupees = service.priceInRupees
+    const durationMinutes = service.durationMinutes
+    const amountPaise = Math.round(priceInRupees * 100)
 
-    const inferred = getAmountInRupees(amountInRupees)
-    if (inferred == null) {
-      return res.status(400).json({ error: 'Missing or invalid `amountInRupees`.' })
-    }
-
-    const amountPaise = Math.round(inferred * 100)
     if (amountPaise < MIN_AMOUNT_PAISE) {
       return res.status(400).json({ error: `Amount must be at least ${MIN_AMOUNT_PAISE} paise.` })
     }
 
+    const cleanEmail = email.toLowerCase().trim()
+    const cleanName = name.trim()
+
     const user = await User.findOneAndUpdate(
-      { email: email.toLowerCase().trim() },
-      { $setOnInsert: { name: name?.toString().trim(), email: email.toLowerCase().trim() } },
+      { email: cleanEmail },
+      { $setOnInsert: { name: cleanName, email: cleanEmail } },
       { upsert: true, new: true },
     )
 
     const appointment = await Appointment.create({
       user: user._id,
       userEmail: user.email,
-      serviceType,
+      serviceType: service.serviceType,
       scheduledAt: when,
-      durationMinutes: finalDuration,
+      durationMinutes,
       status: 'Pending',
     })
 
@@ -60,7 +70,12 @@ async function createBookingOrder(req, res) {
       amount: amountPaise,
       currency: 'INR',
       receipt: appointment._id.toString(),
-      notes: { appointmentId: appointment._id.toString() },
+      notes: {
+        appointmentId: appointment._id.toString(),
+        serviceType: service.serviceType,
+        customerName: cleanName,
+        customerEmail: cleanEmail,
+      },
     })
 
     appointment.razorpayOrderId = order.id
@@ -72,6 +87,12 @@ async function createBookingOrder(req, res) {
       amount: order.amount,
       currency: order.currency,
       appointmentId: appointment._id.toString(),
+      service: {
+        serviceType: service.serviceType,
+        label: service.label,
+        priceInRupees: service.priceInRupees,
+        durationMinutes: service.durationMinutes,
+      },
     })
   } catch (err) {
     console.error('createBookingOrder error:', err)
@@ -83,8 +104,13 @@ async function createBookingOrder(req, res) {
 async function getBookingStatus(req, res) {
   try {
     const { appointmentId } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(appointmentId)) {
+      return res.status(400).json({ error: 'Invalid appointment ID format.' })
+    }
+
     const appointment = await Appointment.findById(appointmentId).select(
-      'status scheduledAt serviceType googleMeetLink',
+      'status scheduledAt serviceType googleMeetLink razorpayOrderId razorpayPaymentId',
     )
 
     if (!appointment) {
@@ -97,6 +123,7 @@ async function getBookingStatus(req, res) {
       scheduledAt: appointment.scheduledAt,
       serviceType: appointment.serviceType,
       googleMeetLink: appointment.googleMeetLink || null,
+      paid: appointment.status === 'Confirmed',
     })
   } catch (err) {
     console.error('getBookingStatus error:', err)
@@ -104,4 +131,4 @@ async function getBookingStatus(req, res) {
   }
 }
 
-module.exports = { createBookingOrder, getBookingStatus }
+module.exports = { listServices, createBookingOrder, getBookingStatus }
